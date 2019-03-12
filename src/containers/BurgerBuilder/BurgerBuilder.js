@@ -121,39 +121,11 @@ purchaseCancelHandler =()=>{
 
 purchaseContinueHandler = ()=>{
   //alert('You continue!')
-  //.json is needed for firebase to form properly
-
-
-  // this.setState({loading: true});
-
-  // Sends to firebase
-  // const order ={
-  //   ingredients: this.state.ingredients,
-  //   price: this.state.totalPrice,
-  //   customer: {
-  //     name: 'Justin Nguyen',
-  //     address: {
-  //       street: 'Teststreet 1',
-  //       zipCode: '90013',
-  //       country: 'USA'
-  //     },
-  //     email: 'test@test.com'
-  //   },
-  //   deliveryMethod: 'fastest'
-  // }
-  // //second argument order is the data thats gets passed
-  // axios.post('/orders.json', order)
-  // .then(response => {
-  //   this.setState({loading: false,
-  //                   purchasing: false});
-  // })
-  // .catch(error => {
-  //   this.setState({loading: false});
-  // });
   const queryParams = [];
   for (let i in this.state.ingredients){
     queryParams.push(encodeURIComponent(i)+'='+encodeURIComponent(this.state.ingredients[i]));
   }
+  queryParams.push('price='+this.state.totalPrice);
   const queryString = queryParams.join('&');
   this.props.history.push({
     pathname: '/checkout',

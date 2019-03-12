@@ -13,7 +13,6 @@ const buildControl = (props)=>(
     {/*onClick is a built in react method*/}
     <button
       onClick={props.added}
-      onClick={props.added}
       className={classes.More}
       >More
     </button>
