@@ -5,15 +5,11 @@ import BuildControls from '../../components/Burger/BuildControls/BuildControls';
 import Modal from '../../components/UI/Modal/Modal';
 import OrderSummary from '../../components/Burger/OrderSummary/OrderSummary';
 import axios from '../../axios-orders';
-import Spinner from '../../components/UI/Spinner/Spinner'
-import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler'
+import Spinner from '../../components/UI/Spinner/Spinner';
+import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
+import {connect} from 'react-redux';
+import * as actionTypes from '../../store/actions'
 
-const INGREDIENT_PRICES = {
-  salad: 0.5,
-  cheese: 0.4,
-  meat: 1.3,
-  bacon: 0.7
-}
 
 class BurgerBuilder extends Component{
   // constructor(props){
@@ -21,79 +17,81 @@ class BurgerBuilder extends Component{
   //   this.state = {...}
   // }
   state = {
-    ingredients: null,
-    totalPrice: 4,
-    purchaseable: false,
+    // ingredients: null,
+    // totalPrice: 4,
+    // You can manage these below thru redux but its mainly for local UI State items
+    // Not necessary but possible
+    // purchaseable: false,
     purchasing: false,
     loading: false,
     error: false
   }
 
-componentDidMount(){
-  axios.get('https://react-my-burger-fab61.firebaseio.com/ingredients.json')
-  .then(response=>{
-    this.setState({ingredients: response.data})
-  }).catch(error=>{
-    this.setState({error: true})
-  });
-}
+// componentDidMount(){
+//   axios.get('https://react-my-burger-fab61.firebaseio.com/ingredients.json')
+//   .then(response=>{
+//     this.setState({ingredients: response.data})
+//   }).catch(error=>{
+//     this.setState({error: true})
+//   });
+// }
 
-addIngredientHandler=(type)=>{
-  //Grabs current number of specified ingredient
-  const oldCount =this.state.ingredients[type];
-  //Increases that number by 1
-  const updatedCounted =oldCount + 1;
-  //Creates a temp object copy of current ingredient state
-  const updatedIngredients ={
-    ...this.state.ingredients
-  };
-  //Updates specified type with updated count in the temp copy
-  updatedIngredients[type]=updatedCounted;
-  //Grabs global price of specified ingredient type
-  const priceAdditon = INGREDIENT_PRICES[type];
-  //Grabs total price from current state
-  const oldPrice = this.state.totalPrice;
-  //Sets new price by adding cuurent to item cost
-  const newPrice = oldPrice + priceAdditon;
+// addIngredientHandler=(type)=>{
+//   //Grabs current number of specified ingredient
+//   const oldCount =this.state.ingredients[type];
+//   //Increases that number by 1
+//   const updatedCounted =oldCount + 1;
+//   //Creates a temp object copy of current ingredient state
+//   const updatedIngredients ={
+//     ...this.state.ingredients
+//   };
+//   //Updates specified type with updated count in the temp copy
+//   updatedIngredients[type]=updatedCounted;
+//   //Grabs global price of specified ingredient type
+//   const priceAdditon = INGREDIENT_PRICES[type];
+//   //Grabs total price from current state
+//   const oldPrice = this.state.totalPrice;
+//   //Sets new price by adding cuurent to item cost
+//   const newPrice = oldPrice + priceAdditon;
 
-//Sets new price and ingredients with temp object copy. Important not to mutate state directly
-  this.setState({
-    totalPrice: newPrice,
-    ingredients: updatedIngredients
-  });
-  this.updatePurchaseState(updatedIngredients);
-}
+// //Sets new price and ingredients with temp object copy. Important not to mutate state directly
+//   this.setState({
+//     totalPrice: newPrice,
+//     ingredients: updatedIngredients
+//   });
+//   this.updatePurchaseState(updatedIngredients);
+// }
 
 
-removeIngredientHandler=(type)=>{
-  //Grabs current number of specified ingredient
-  const oldCount =this.state.ingredients[type];
-  //Decreases that number by 1
-  if(oldCount>=1){
-    const updatedCounted =oldCount - 1;
-    //Creates a temp object copy of current ingredient state
-    const updatedIngredients ={
-      ...this.state.ingredients
-    };
-    //Updates specified type with updated count in the temp copy
-    updatedIngredients[type]=updatedCounted;
-    //Grabs global price of specified ingredient type
-    const priceReduction = INGREDIENT_PRICES[type];
-    //Grabs total price from current state
-    const oldPrice = this.state.totalPrice;
-    //Sets new price by subtracting item cost from current
-    const newPrice = oldPrice - priceReduction;
+// removeIngredientHandler=(type)=>{
+//   //Grabs current number of specified ingredient
+//   const oldCount =this.state.ingredients[type];
+//   //Decreases that number by 1
+//   if(oldCount>=1){
+//     const updatedCounted =oldCount - 1;
+//     //Creates a temp object copy of current ingredient state
+//     const updatedIngredients ={
+//       ...this.state.ingredients
+//     };
+//     //Updates specified type with updated count in the temp copy
+//     updatedIngredients[type]=updatedCounted;
+//     //Grabs global price of specified ingredient type
+//     const priceReduction = INGREDIENT_PRICES[type];
+//     //Grabs total price from current state
+//     const oldPrice = this.state.totalPrice;
+//     //Sets new price by subtracting item cost from current
+//     const newPrice = oldPrice - priceReduction;
 
-  //Sets new price and ingredients with temp object copy. Important not to mutate state directly
-    this.setState({
-      totalPrice: newPrice,
-      ingredients: updatedIngredients
-    });
-    this.updatePurchaseState(updatedIngredients);
-  }else{
-    return;
-  }
-}
+//   //Sets new price and ingredients with temp object copy. Important not to mutate state directly
+//     this.setState({
+//       totalPrice: newPrice,
+//       ingredients: updatedIngredients
+//     });
+//     this.updatePurchaseState(updatedIngredients);
+//   }else{
+//     return;
+//   }
+// }
 
 updatePurchaseState(ingredients){
   //Pulls keys from the temp object
@@ -107,7 +105,9 @@ updatePurchaseState(ingredients){
     return sum + el;
   }, 0);
   //sets new state to true or false
-  this.setState({purchaseable: sum > 0})
+  // this.setState({purchaseable: sum > 0})
+
+  return  sum > 0;
 }
 
 
@@ -120,22 +120,20 @@ purchaseCancelHandler =()=>{
 }
 
 purchaseContinueHandler = ()=>{
-  //alert('You continue!')
-  const queryParams = [];
-  for (let i in this.state.ingredients){
-    queryParams.push(encodeURIComponent(i)+'='+encodeURIComponent(this.state.ingredients[i]));
-  }
-  queryParams.push('price='+this.state.totalPrice);
-  const queryString = queryParams.join('&');
-  this.props.history.push({
-    pathname: '/checkout',
-    search: '?'+queryString
-  })
-
+  //With reux we no longer need to pass thru queryParams 
+  //and can get ingredients from the store
+//   //alert('You continue!')
+//   const queryParams = [];
+//   for (let i in this.state.ingredients){
+//     queryParams.push(encodeURIComponent(i)+'='+encodeURIComponent(this.state.ingredients[i]));
+//   }
+//   queryParams.push('price='+this.state.totalPrice);
+//   const queryString = queryParams.join('&');
+  this.props.history.push('./checkout')
 }
   render(){
     const disabledInfo = {
-      ...this.state.ingredients
+      ...this.props.ings
     }
     for (let key in disabledInfo){
       disabledInfo[key] =   disabledInfo[key] <=0
@@ -148,17 +146,21 @@ purchaseContinueHandler = ()=>{
 
     //checks to see if there are ingreidents in the state then loads the burger.
     //otherise spinner will show
-if(this.state.ingredients){
+if(this.props.ings){
   burger =(
         <Auxilary><Burger
-            ingredients={this.state.ingredients}
+            ingredients={this.props.ings}
         />
           <BuildControls
-            ingredientAdded={this.addIngredientHandler}
-            ingredientRemoved={this.removeIngredientHandler}
+          // because build controls already passes the ingredients as control 
+          // types we do not need to do it here
+            ingredientAdded={this.props.onIngredientAdded}
+            ingredientRemoved={this.props.onIngredientRemoved}
             disabled = {disabledInfo}
-            price={this.state.totalPrice}
-            purchaseable={this.state.purchaseable}
+            price={this.props.price}
+            //execute immediately because we want to update the button
+            //every time it renders
+            purchaseable={this.updatePurchaseState(this.props.ings)}
             ordered={this.purchaseHandler}
           />
       </Auxilary>
@@ -167,8 +169,8 @@ if(this.state.ingredients){
   orderSummary=(<OrderSummary
     purchaseCanceled={this.purchaseCancelHandler}
     purchaseContinued={this.purchaseContinueHandler}
-    ingredients={this.state.ingredients}
-    price={this.state.totalPrice}
+    ingredients={this.props.ings}
+    price={this.props.price}
   />)
 }
 
@@ -188,4 +190,19 @@ if(this.state.loading){
   }
 }
 
-export default withErrorHandler(BurgerBuilder, axios);
+const mapStateToProps = state =>{
+  return {
+    ings: state.ingredients,
+    price: state.totalPrice
+  }
+}
+
+const mapDispatchToProps=dispatch=>{
+  return{
+    onIngredientAdded: (ingName)=>dispatch({type:actionTypes.ADD_INGREDIENT, ingredientName: ingName}),
+    onIngredientRemoved: (ingName)=>dispatch({type:actionTypes.REMOVE_INGREDIENT, ingredientName: ingName})
+  }
+}
+
+
+export default connect(mapStateToProps,mapDispatchToProps)( withErrorHandler(BurgerBuilder, axios));
