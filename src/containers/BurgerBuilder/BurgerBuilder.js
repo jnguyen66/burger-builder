@@ -8,7 +8,12 @@ import axios from '../../axios-orders';
 import Spinner from '../../components/UI/Spinner/Spinner';
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
 import {connect} from 'react-redux';
-import * as actionTypes from '../../store/actions'
+
+//Now that we have action creators, no longer need this
+// import * as actionTypes from '../../store/actions/actionsTypes'
+
+//instead import index.
+import * as actions from '../../store/actions/index'
 
 
 class BurgerBuilder extends Component{
@@ -23,18 +28,25 @@ class BurgerBuilder extends Component{
     // Not necessary but possible
     // purchaseable: false,
     purchasing: false,
-    loading: false,
-    error: false
+
+    //No longer needed. Managed in reducer
+    // loading: false,
+    // error: false
   }
 
-// componentDidMount(){
+componentDidMount(){
+//Before thunk
 //   axios.get('https://react-my-burger-fab61.firebaseio.com/ingredients.json')
 //   .then(response=>{
 //     this.setState({ingredients: response.data})
 //   }).catch(error=>{
 //     this.setState({error: true})
 //   });
-// }
+
+//Now with thunk and action creators we can use redux asynchronously
+this.props.onInitIngredients();
+
+}
 
 // addIngredientHandler=(type)=>{
 //   //Grabs current number of specified ingredient
@@ -120,6 +132,7 @@ purchaseCancelHandler =()=>{
 }
 
 purchaseContinueHandler = ()=>{
+  this.props.onInitPurchase()
   //With reux we no longer need to pass thru queryParams 
   //and can get ingredients from the store
 //   //alert('You continue!')
@@ -142,7 +155,7 @@ purchaseContinueHandler = ()=>{
     let orderSummary=null
 
 
-    let burger=this.state.error? <p>Ingredients couldnt be loaded!</p>: <Spinner/>
+    let burger=this.props.error? <p>Ingredients couldnt be loaded!</p>: <Spinner/>
 
     //checks to see if there are ingreidents in the state then loads the burger.
     //otherise spinner will show
@@ -174,9 +187,9 @@ if(this.props.ings){
   />)
 }
 
-if(this.state.loading){
-  orderSummary=<Spinner/>
-}
+// if(this.state.loading){
+//   orderSummary=<Spinner/>
+// }
 
     return(
       <Auxilary>
@@ -192,17 +205,28 @@ if(this.state.loading){
 
 const mapStateToProps = state =>{
   return {
-    ings: state.ingredients,
-    price: state.totalPrice
+    ings: state.burgerBuilder.ingredients,
+    price: state.burgerBuilder.totalPrice,
+    error: state.burgerBuilder.error
   }
 }
 
+//Before action creators
+// const mapDispatchToProps=dispatch=>{
+//   return{
+//     onIngredientAdded: (ingName)=>dispatch({type:actionTypes.ADD_INGREDIENT, ingredientName: ingName}),
+//     onIngredientRemoved: (ingName)=>dispatch({type:actionTypes.REMOVE_INGREDIENT, ingredientName: ingName})
+//   }
+// }
+
+//After action creators
 const mapDispatchToProps=dispatch=>{
   return{
-    onIngredientAdded: (ingName)=>dispatch({type:actionTypes.ADD_INGREDIENT, ingredientName: ingName}),
-    onIngredientRemoved: (ingName)=>dispatch({type:actionTypes.REMOVE_INGREDIENT, ingredientName: ingName})
+    onIngredientAdded: (ingName)=>dispatch(actions.addIngredient(ingName)),
+    onIngredientRemoved: (ingName)=>dispatch(actions.removeIngredient(ingName)),
+    onInitIngredients: ()=>dispatch(actions.initIngredients()),
+    onInitPurchase: ()=>dispatch(actions.purchaseInit())
   }
 }
-
 
 export default connect(mapStateToProps,mapDispatchToProps)( withErrorHandler(BurgerBuilder, axios));

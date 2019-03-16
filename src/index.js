@@ -5,10 +5,29 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import {BrowserRouter} from 'react-router-dom'
 import {Provider} from 'react-redux';
-import {createStore} from 'redux';
-import reducer from './store/reducer';
+//applyMiddleware & compose is for thunk. Compose allows us to compose our own set of enhancers or middleware
+//Its just another enhancer just like react dev tools
+import {createStore, applyMiddleware, compose, combineReducers} from 'redux';
+import burgerBuilderReducer from './store/reducers/burgerBuilder';
+import thunk from 'redux-thunk';
+import orderReducer from './store/reducers/order';
 
-const store=createStore(reducer);
+//This is for thunk
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+
+//reducer combiner
+const rootReducer = combineReducers({
+  burgerBuilder: burgerBuilderReducer,
+  order: orderReducer
+});
+
+//Passing reducer and react dev tools link. Can add multiple reducers. No middleware
+// const store=createStore(burgerBuilderReducer, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
+
+//React dev tools link. Can add multiple reducers. Advanced with middleware (thunk)
+const store=createStore(rootReducer, composeEnhancers(
+  applyMiddleware(thunk)
+));
 
 const app = (
   <Provider store={store}>

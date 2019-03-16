@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
 import CheckoutSummary from '../../components/Order/CheckoutSummary/CheckoutSummary';
-import {Route} from 'react-router-dom';
+import {Route, Redirect} from 'react-router-dom';
 import ContactData from './ContactData/ContactData';
 import {connect} from 'react-redux';
+
 
 class Checkout extends Component{
   //Also no longer needed with redux
@@ -29,7 +30,9 @@ class Checkout extends Component{
   //   this.setState({ingredients: ingredients, totalPrice: price})
   // }
 
+  componentWillMount(){
 
+  }
   checkoutCancelledHandler = () =>{
     this.props.history.goBack();
   }
@@ -39,14 +42,23 @@ class Checkout extends Component{
   }
 
   render(){
-    return(
-      <div>
-          <CheckoutSummary
-            ingredients={this.props.ings}
-            onCheckoutCancelled={this.checkoutCancelledHandler}
-            onCheckoutContinued={this.checkoutContinuedHandler}
-            />
-            <Route
+
+    //Checks to see if there are ingredients. If not, will redirect to home page. If so,
+    //will load checkoutsummary component
+    let summary =<Redirect to='/'/>
+    if (this.props.ings){
+      //If purchased is complete, redirect. if not continue
+      const purchasedRedirect =this.props.purchased ? <Redirect to='/'/> : null
+      summary = (
+        <div>
+      {purchasedRedirect}
+      <CheckoutSummary
+      ingredients={this.props.ings}
+      onCheckoutCancelled={this.checkoutCancelledHandler}
+      onCheckoutContinued={this.checkoutContinuedHandler}
+      />
+      
+      <Route
               path={this.props.match.path + '/contact-data'}
               // component={ContactData}
               //manual render we can access send props so that it can be accessed
@@ -55,20 +67,23 @@ class Checkout extends Component{
               //Also not needed due to redux
               // render={(props)=>(<ContactData ingredients={this.props.ings} totalPrice={this.props.price} {...props}/> )}
               component={ContactData}/>
-            />
       </div>
-
-    )
+      )
+    }
+    return summary;
   }
 
 }
 
 const mapStateToProps= state =>{
   return{
-    ings: state.ingredients,
-    price: state.totalPrice
+    ings: state.burgerBuilder.ingredients,
+    price: state.burgerBuilder.totalPrice,
+    purchased: state.order.purchased
   }
 }
+
+
 
 //No dispatch needed cause we are only routing here. 
 //Therefore no redux dispatching needed
