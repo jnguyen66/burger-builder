@@ -7,6 +7,8 @@ import Input from '../../../components/UI/Input/Input';
 import {connect} from 'react-redux';
 import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
 import  * as actions from '../../../store/actions/index';
+import {updateObject} from '../../../shared/utility';
+import {checkValidity} from '../../../shared/utility';
 
 class ContactData extends Component{
   state = {
@@ -116,7 +118,8 @@ class ContactData extends Component{
       ingredients: this.props.ings,
       price: this.props.price,
       //data user entered into form
-      orderData: formData
+      orderData: formData,
+      userId: this.props.userId
     }
     //second argument order is the data thats gets passed
     //.json is needed for firebase to form properly
@@ -130,39 +133,43 @@ class ContactData extends Component{
     //   this.setState({loading: false});
     // });
 
-    this.props.onOrderBurger(order);
+    this.props.onOrderBurger(order, this.props.token);
   }
 
-checkValidity=(value, rules)=>{
-  let isValid = true;
-  if(rules.required){
-    isValid= value.trim() !=='' && isValid;
-  }
-  if(rules.minLength){
-    isValid=value.length >= rules.minLength && isValid;
-  }
-  if(rules.maxLength){
-    isValid=value.length <= rules.minLength && isValid;
-  }
-  return isValid;
-}
 
 inputChangeHandler =(event, inputIdentifier)=>{
   //Clones order form
-  const updatedOrderForm= {
-    ...this.state.orderForm
-  }
+  // const updatedOrderForm= {
+  //   ...this.state.orderForm
+  // }
+  
   //Then uses updatedOrderForm to clone next level down which would include
   //elementType, elementConfig, and value
-  const updatedFormElement = {
-    ...updatedOrderForm[inputIdentifier]
-  }
-  //Sets value equal to typed letters in event
-  updatedFormElement.value =event.target.value;
-  //Executes validiaty method passing value and rules as parameter, and sets valid to true
-  updatedFormElement.valid=this.checkValidity(updatedFormElement.value, updatedFormElement.validation);
-  updatedFormElement.touched=true;
-  updatedOrderForm[inputIdentifier]=updatedFormElement;
+  // const updatedFormElement = {
+  //   ...updatedOrderForm[inputIdentifier]
+  // }
+
+    // //Sets value equal to typed letters in event
+    // updatedFormElement.value =event.target.value;
+    // //Executes validiaty method passing value and rules as parameter, and sets valid to true
+    // updatedFormElement.valid=this.checkValidity(updatedFormElement.value, updatedFormElement.validation);
+    // updatedFormElement.touched=true;
+
+    // updatedOrderForm[inputIdentifier]=updatedFormElement;
+
+
+  //Refactored from above and below
+  const updatedFormElement = updateObject(this.state.orderForm[inputIdentifier], {
+    value:event.target.value,
+    valid:checkValidity(event.target.value, this.state.orderForm[inputIdentifier].validation),
+    touched:true
+  })
+
+  const updatedOrderForm = updateObject(this.state.orderForm, {
+    [inputIdentifier]: updatedFormElement
+  })
+
+
   //Checks to see if form is valid by starting with true
   let formIsValid = true;
   //Loops thru updated form and checks if valid is true and formIsValid is true
@@ -218,13 +225,15 @@ const mapStateToProps= state =>{
   return{
     ings: state.burgerBuilder.ingredients,
     price: state.burgerBuilder.totalPrice,
-    loading: state.order.loading
+    loading: state.order.loading,
+    token: state.auth.token,
+    userId: state.auth.userId
   }
 }
 
 const mapDispatchToProps= dispatch =>{
   return{
-    onOrderBurger: (orderData) => dispatch(actions.purchaseBurger(orderData))
+    onOrderBurger: (orderData, token) => dispatch(actions.purchaseBurger(orderData, token))
 
   }
 }

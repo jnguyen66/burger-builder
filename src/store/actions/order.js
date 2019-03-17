@@ -25,11 +25,12 @@ export const purchaseBurgerStart = () =>{
     }
 }
 
-//Asynchronous
-export const purchaseBurger = (orderData)=>{
+//Asynchronous. Purchase burger also will require a token. You add token as a param and pass it
+//into the querey parameter "?auth=" + token
+export const purchaseBurger = (orderData, token)=>{
     return dispatch =>{
         dispatch(purchaseBurgerStart());
-        axios.post('/orders.json', orderData)
+        axios.post('/orders.json?auth='+token, orderData)
         .then(response => {
         //   this.setState({loading: false});
         //   this.props.history.push('/');
@@ -73,10 +74,12 @@ export const fetchOrdersStart = ()=>{
 }
 
 
-export const fetchOrders =()=>{
+export const fetchOrders =(token,userId)=>{
     return dispatch =>{
         dispatch(fetchOrdersStart())
-        axios.get('/orders.json')
+        //'&orderBy=userId&equalTo=' orders by that user and only fetches orders whom have that user id
+        const quereyParams = '?auth=' + token + '&orderBy="userId"&equalTo="'+userId+'"';
+        axios.get('/orders.json'+quereyParams)
     .then(res=>{
       let fetchedOrders =[];
       for (let key in res.data){
