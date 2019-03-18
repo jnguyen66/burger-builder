@@ -1,6 +1,6 @@
 {
   "name": "burger-builder",
-  "homepage": "https://react-my-burger-fab61.firebaseapp.com/",
+  "homepage": "https://react-my-burger-fab61.firebaseapp.com/burger-builder",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

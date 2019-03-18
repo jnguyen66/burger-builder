@@ -11,7 +11,7 @@ import {createStore, applyMiddleware, compose, combineReducers} from 'redux';
 import thunk from 'redux-thunk';
 //combine reducers at this index file
 import orderReducer from './store/reducers/order';
-import authReducer from './store/reducers/auth'
+import authReducer from './store/reducers/auth';
 import burgerBuilderReducer from './store/reducers/burgerBuilder';
 
 //This is for thunk. If in developent, redux dev tools will be availiblue. But if not it will not be.

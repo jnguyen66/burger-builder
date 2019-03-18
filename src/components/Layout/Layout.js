@@ -1,6 +1,6 @@
 import React from 'react';
 import Auxilary from '../../hoc/Auxilary';
-import classes from './Layout.css'
+import classes from './Layout.css';
 
 const layout = (props) => (
   <Auxilary>

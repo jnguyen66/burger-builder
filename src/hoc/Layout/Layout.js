@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 import Auxilary from '../Auxilary/Auxilary';
-import classes from './Layout.css'
-import Toolbar from '../../components/Navigation/Toolbar/Toolbar'
-import SideDrawer from '../../components/Navigation/SideDrawer/SideDrawer'
+import classes from './Layout.css';
+import Toolbar from '../../components/Navigation/Toolbar/Toolbar';
+import SideDrawer from '../../components/Navigation/SideDrawer/SideDrawer';
 //Because navigation is a functional componenet. Its better to pass Auth state in this 
 //container component, and then pass it from here to navigation
 import {connect} from 'react-redux';
