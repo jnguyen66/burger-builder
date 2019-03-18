@@ -34,7 +34,7 @@ const store=createStore(rootReducer, composeEnhancers(
 
 const app = (
   <Provider store={store}>
-  <BrowserRouter>
+  <BrowserRouter basename="https://react-my-burger-fab61.firebaseapp.com/">
       <App/>
   </BrowserRouter>
   </Provider>

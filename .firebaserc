@@ -1,0 +1,6 @@
+{
+  "projects": {
+    "default": "burger-builder",
+    "burger-building": "react-my-burger-fab61"
+  }
+}
