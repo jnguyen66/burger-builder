@@ -27,7 +27,7 @@ export class BurgerBuilder extends Component{
     // You can manage these below thru redux but its mainly for local UI State items
     // Not necessary but possible
     // purchaseable: false,
-    purchasing: false,
+    purchasing: false
 
     //No longer needed. Managed in reducer
     // loading: false,

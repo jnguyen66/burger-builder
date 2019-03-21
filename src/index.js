@@ -13,9 +13,14 @@ import thunk from 'redux-thunk';
 import orderReducer from './store/reducers/order';
 import authReducer from './store/reducers/auth';
 import burgerBuilderReducer from './store/reducers/burgerBuilder';
+import { watchAuth } from './store/saga/index';
+import createSagaMiddleware from 'redux-saga';
 
 //This is for thunk. If in developent, redux dev tools will be availiblue. But if not it will not be.
-const composeEnhancers = process.env.NODE_ENV==='development'?window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose:null;
+// const composeEnhancers = process.env.NODE_ENV==='development' ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__: null || compose;
+
+//Testing to make work on firefox
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 //reducer combiner
 const rootReducer = combineReducers({
@@ -24,17 +29,21 @@ const rootReducer = combineReducers({
   auth: authReducer
 });
 
+const sagaMiddleware = createSagaMiddleware();
+
 //Passing reducer and react dev tools link. Can add multiple reducers. No middleware
 // const store=createStore(burgerBuilderReducer, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
 
 //React dev tools link. Can add multiple reducers. Advanced with middleware (thunk)
 const store=createStore(rootReducer, composeEnhancers(
-  applyMiddleware(thunk)
+  applyMiddleware(thunk, sagaMiddleware)
 ));
+
+sagaMiddleware.run(watchAuth);
 
 const app = (
   <Provider store={store}>
-  <BrowserRouter basename="https://react-my-burger-fab61.firebaseapp.com/">
+  <BrowserRouter>
       <App/>
   </BrowserRouter>
   </Provider>
