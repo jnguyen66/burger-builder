@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {useState} from 'react';
 import Button from '../../../components/UI/Button/Button';
 import classes from './ContactData.css';
 import axios from '../../../axios-orders';
@@ -10,10 +10,97 @@ import  * as actions from '../../../store/actions/index';
 import {updateObject} from '../../../shared/utility';
 import {checkValidity} from '../../../shared/utility';
 
-class ContactData extends Component{
-  state = {
-    //All local UI state
-    orderForm:{
+const contactData = props =>{
+  // state = {
+  //   //All local UI state
+  //   orderForm:{
+  //         name: {
+  //             elementType: 'input',
+  //             elementConfig: {
+  //               type: 'text',
+  //               placeholder: 'Your Name'
+  //             },
+  //             value: '',
+  //             validation:{
+  //               required: true
+  //             },
+  //             valid: false,
+  //             touched: false
+  //         },
+  //         street: {
+  //             elementType: 'input',
+  //             elementConfig: {
+  //               type: 'text',
+  //               placeholder: 'Street'
+  //             },
+  //             value: '',
+  //             validation:{
+  //               required: true
+  //             },
+  //             valid: false,
+  //             touched: false
+  //         },
+  //         zipCode: {
+  //             elementType: 'input',
+  //             elementConfig: {
+  //               type: 'text',
+  //               placeholder: 'Zipcode'
+  //             },
+  //             value: '',
+  //             validation:{
+  //               required: true,
+  //               minLength: 5,
+  //               maxLength: 5
+  //             },
+  //             valid: false,
+  //             touched: false
+  //         },
+  //         country: {
+  //             elementType: 'input',
+  //             elementConfig: {
+  //               type: 'text',
+  //               placeholder: 'Country'
+  //             },
+  //             value: '',
+  //             validation:{
+  //               required: true
+  //             },
+  //             valid: false,
+  //             touched: false
+  //         },
+  //         email: {
+  //             elementType: 'input',
+  //             elementConfig: {
+  //               type: 'text',
+  //               placeholder: 'Email'
+  //             },
+  //             value: '',
+  //             validation:{
+  //               required: true
+  //             },
+  //             valid: false,
+  //             touched: false
+  //         },
+  //         deliveryMethod: {
+  //             elementType: 'select',
+  //             elementConfig: {
+  //               options: [
+  //                 {value: 'fastest', displayValue: 'Fastest'},
+  //                 {value: 'cheapest', displayValue: 'Cheapest'}
+  //             ]
+  //             },
+  //             value: 'fastest',
+  //             validation: {},
+  //             valid: true
+  //         }
+
+  //   },
+  //   formIsValid: false,
+  //   // loading: false
+  // }
+
+
+const [orderForm, setOrderForm] = useState({
           name: {
               elementType: 'input',
               elementConfig: {
@@ -94,13 +181,13 @@ class ContactData extends Component{
               valid: true
           }
 
-    },
-    formIsValid: false,
-    // loading: false
-  }
+    })
+  
+    const [formIsValid, setFormIsValid]=useState(false);
+
 //Because we are dealing with forms must include event as param
 //and prevent default so that the page does not load on submit click
-  orderHandler =(event)=>{
+  const orderHandler =(event)=>{
     event.preventDefault();
     // console.log(this.props.ingredients);
 
@@ -108,18 +195,18 @@ class ContactData extends Component{
     //creates empty object
     const formData ={}
     //loops thru orderForm
-    for (let formElementIdentifier in this.state.orderForm){
+    for (let formElementIdentifier in orderForm){
       //sets key of form data to the first level(i.e. name, email, address)
       //and sets value to its corresponding value
-      formData[formElementIdentifier]=this.state.orderForm[formElementIdentifier].value;
+      formData[formElementIdentifier]=orderForm[formElementIdentifier].value;
     }
     //Sends to firebase
     const order ={
-      ingredients: this.props.ings,
-      price: this.props.price,
+      ingredients: props.ings,
+      price: props.price,
       //data user entered into form
       orderData: formData,
-      userId: this.props.userId
+      userId: props.userId
     }
     //second argument order is the data thats gets passed
     //.json is needed for firebase to form properly
@@ -133,11 +220,11 @@ class ContactData extends Component{
     //   this.setState({loading: false});
     // });
 
-    this.props.onOrderBurger(order, this.props.token);
+   props.onOrderBurger(order, props.token);
   }
 
 
-inputChangeHandler =(event, inputIdentifier)=>{
+ const inputChangeHandler =(event, inputIdentifier)=>{
   //Clones order form
   // const updatedOrderForm= {
   //   ...this.state.orderForm
@@ -159,13 +246,13 @@ inputChangeHandler =(event, inputIdentifier)=>{
 
 
   //Refactored from above and below
-  const updatedFormElement = updateObject(this.state.orderForm[inputIdentifier], {
+  const updatedFormElement = updateObject(orderForm[inputIdentifier], {
     value:event.target.value,
-    valid:checkValidity(event.target.value, this.state.orderForm[inputIdentifier].validation),
+    valid:checkValidity(event.target.value, orderForm[inputIdentifier].validation),
     touched:true
   })
 
-  const updatedOrderForm = updateObject(this.state.orderForm, {
+  const updatedOrderForm = updateObject(orderForm, {
     [inputIdentifier]: updatedFormElement
   })
 
@@ -177,19 +264,23 @@ inputChangeHandler =(event, inputIdentifier)=>{
   for (let inputIdentifier in updatedOrderForm){
     formIsValid=updatedOrderForm[inputIdentifier].valid && formIsValid;
   }
-  this.setState({orderForm: updatedOrderForm, formIsValid: formIsValid});
+  
+  // this.setState({orderForm: updatedOrderForm, formIsValid: formIsValid});
+  //Refactored with hooks
+  setOrderForm(updatedOrderForm);
+  setFormIsValid(formIsValid);
 
 }
-  render(){
+
     const formElementArray = [];
-    for (let key in this.state.orderForm){
+    for (let key in orderForm){
       formElementArray.push({
         id: key,
-        config: this.state.orderForm[key]
+        config: orderForm[key]
       })
     }
     let form=(
-      <form onSubmit={this.orderHandler}>
+      <form onSubmit={orderHandler}>
         {/*  <Input elementType='...' elementConfig='...' value='...'/>*/}
         {formElementArray.map(formElement =>(
           <Input
@@ -200,16 +291,16 @@ inputChangeHandler =(event, inputIdentifier)=>{
           invalid={!formElement.config.valid}
           shouldValidate={formElement.config.validation}
           touched={formElement.config.touched}
-          changed={(event)=>this.inputChangeHandler(event, formElement.id)}/>
+          changed={(event)=>inputChangeHandler(event, formElement.id)}/>
         ))}
         {/* <Input inputtype='input' type='text' name='email' placeholder='Your email'/>
         <Input inputtype='input' type='text' name='street' placeholder='Your street'/>
         <Input inputtype='input' type='text' name='postal' placeholder='Postal Code'/> */}
-        <Button btnType='Success'disabled={!this.state.formIsValid}>ORDER</Button>
+        <Button btnType='Success'disabled={!formIsValid}>ORDER</Button>
       </form>
     )
     // console.log(form);
-    if(this.props.loading){
+    if(props.loading){
       form=<Spinner/>
     }
     return(
@@ -218,7 +309,7 @@ inputChangeHandler =(event, inputIdentifier)=>{
         {form}
       </div>
     )
-  }
+  
 }
 
 const mapStateToProps= state =>{
@@ -238,4 +329,4 @@ const mapDispatchToProps= dispatch =>{
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withErrorHandler(ContactData, axios));
+export default connect(mapStateToProps, mapDispatchToProps)(withErrorHandler(contactData, axios));

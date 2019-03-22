@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {useEffect, useState} from 'react';
 import Auxilary from '../../hoc/Auxilary/Auxilary';
 import Burger from '../../components/Burger/Burger';
 import BuildControls from '../../components/Burger/BuildControls/BuildControls';
@@ -16,37 +16,46 @@ import {connect} from 'react-redux';
 import * as actions from '../../store/actions/index'
 
 
-export class BurgerBuilder extends Component{
+export const burgerBuilder =props=>{
   // constructor(props){
   //   super(props);
   //   this.state = {...}
   // }
-  state = {
-    // ingredients: null,
-    // totalPrice: 4,
-    // You can manage these below thru redux but its mainly for local UI State items
-    // Not necessary but possible
-    // purchaseable: false,
-    purchasing: false
 
-    //No longer needed. Managed in reducer
-    // loading: false,
-    // error: false
-  }
+  //no longer needed due to react hooks/ useState
+  // state = {
+  //   // ingredients: null,
+  //   // totalPrice: 4,
+  //   // You can manage these below thru redux but its mainly for local UI State items
+  //   // Not necessary but possible
+  //   // purchaseable: false,
+  //   purchasing: false
 
-componentDidMount(){
-//Before thunk
-//   axios.get('https://react-my-burger-fab61.firebaseio.com/ingredients.json')
-//   .then(response=>{
-//     this.setState({ingredients: response.data})
-//   }).catch(error=>{
-//     this.setState({error: true})
-//   });
+  //   //No longer needed. Managed in reducer
+  //   // loading: false,
+  //   // error: false
+  // }
 
-//Now with thunk and action creators we can use redux asynchronously
-this.props.onInitIngredients();
+  const [purchasing, setPurchasing]=useState(false)
 
-}
+  useEffect(()=>{
+    props.onInitIngredients();
+  }, []);
+
+  //refactored with useefffect
+// componentDidMount(){
+// //Before thunk
+// //   axios.get('https://react-my-burger-fab61.firebaseio.com/ingredients.json')
+// //   .then(response=>{
+// //     this.setState({ingredients: response.data})
+// //   }).catch(error=>{
+// //     this.setState({error: true})
+// //   });
+
+// //Now with thunk and action creators we can use redux asynchronously
+// this.props.onInitIngredients();
+
+// }
 
 // addIngredientHandler=(type)=>{
 //   //Grabs current number of specified ingredient
@@ -105,7 +114,7 @@ this.props.onInitIngredients();
 //   }
 // }
 
-updatePurchaseState(ingredients){
+const updatePurchaseState=(ingredients)=>{
   //Pulls keys from the temp object
   const sum = Object.keys(ingredients)
   //Using those keys maps an array of values
@@ -123,22 +132,24 @@ updatePurchaseState(ingredients){
 }
 
 
-purchaseHandler = () =>{
-  if (this.props.isAuthenticated){
-    this.setState({purchasing: true})
+const purchaseHandler = () =>{
+  if (props.isAuthenticated){
+    // this.setState({purchasing: true})
+    setPurchasing(true)
   }else{
-    this.props.onSetRedirectPath('/checkout');
-    this.props.history.push('/auth')
+    props.onSetRedirectPath('/checkout');
+    props.history.push('/auth')
   }
   
 }
 
-purchaseCancelHandler =()=>{
-  this.setState({purchasing:false})
+const purchaseCancelHandler =()=>{
+  // this.setState({purchasing:false})
+  setPurchasing(false)
 }
 
-purchaseContinueHandler = ()=>{
-  this.props.onInitPurchase()
+const purchaseContinueHandler = ()=>{
+  props.onInitPurchase()
   //With reux we no longer need to pass thru queryParams 
   //and can get ingredients from the store
 //   //alert('You continue!')
@@ -148,11 +159,11 @@ purchaseContinueHandler = ()=>{
 //   }
 //   queryParams.push('price='+this.state.totalPrice);
 //   const queryString = queryParams.join('&');
-  this.props.history.push('./checkout')
+  props.history.push('./checkout')
 }
-  render(){
+
     const disabledInfo = {
-      ...this.props.ings
+      ...props.ings
     }
     for (let key in disabledInfo){
       disabledInfo[key] =   disabledInfo[key] <=0
@@ -161,36 +172,36 @@ purchaseContinueHandler = ()=>{
     let orderSummary=null
 
 
-    let burger=this.props.error? <p>Ingredients couldnt be loaded!</p>: <Spinner/>
+    let burger=props.error? <p>Ingredients couldnt be loaded!</p>: <Spinner/>
 
     //checks to see if there are ingreidents in the state then loads the burger.
     //otherise spinner will show
-if(this.props.ings){
+if(props.ings){
   burger =(
         <Auxilary><Burger
-            ingredients={this.props.ings}
+            ingredients={props.ings}
         />
           <BuildControls
           // because build controls already passes the ingredients as control 
           // types we do not need to do it here
-            ingredientAdded={this.props.onIngredientAdded}
-            ingredientRemoved={this.props.onIngredientRemoved}
+            ingredientAdded={props.onIngredientAdded}
+            ingredientRemoved={props.onIngredientRemoved}
             disabled = {disabledInfo}
-            price={this.props.price}
+            price={props.price}
             //execute immediately because we want to update the button
             //every time it renders
-            purchaseable={this.updatePurchaseState(this.props.ings)}
-            ordered={this.purchaseHandler}
-            isAuth={this.props.isAuthenticated}
+            purchaseable={updatePurchaseState(props.ings)}
+            ordered={purchaseHandler}
+            isAuth={props.isAuthenticated}
           />
       </Auxilary>
   )
 
   orderSummary=(<OrderSummary
-    purchaseCanceled={this.purchaseCancelHandler}
-    purchaseContinued={this.purchaseContinueHandler}
-    ingredients={this.props.ings}
-    price={this.props.price}
+    purchaseCanceled={purchaseCancelHandler}
+    purchaseContinued={purchaseContinueHandler}
+    ingredients={props.ings}
+    price={props.price}
   />)
 }
 
@@ -200,14 +211,14 @@ if(this.props.ings){
 
     return(
       <Auxilary>
-        <Modal show={this.state.purchasing} modalClosed={this.purchaseCancelHandler}>
+        <Modal show={purchasing} modalClosed={purchaseCancelHandler}>
           {orderSummary}
         </Modal>
         {burger}
 
       </Auxilary>
     );
-  }
+  
 }
 
 const mapStateToProps = state =>{
@@ -238,4 +249,4 @@ const mapDispatchToProps=dispatch=>{
   }
 }
 
-export default connect(mapStateToProps,mapDispatchToProps)( withErrorHandler(BurgerBuilder, axios));
+export default connect(mapStateToProps,mapDispatchToProps)( withErrorHandler(burgerBuilder, axios));

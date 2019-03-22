@@ -1,11 +1,11 @@
-import React, {Component} from 'react';
+import React, {} from 'react';
 import CheckoutSummary from '../../components/Order/CheckoutSummary/CheckoutSummary';
 import {Route, Redirect} from 'react-router-dom';
 import ContactData from './ContactData/ContactData';
 import {connect} from 'react-redux';
 
 
-class Checkout extends Component{
+const checkout = props =>{
   //Also no longer needed with redux
   // state={
   //   //Because we see this in mulitple containers classes its a good case for redux
@@ -30,36 +30,34 @@ class Checkout extends Component{
   //   this.setState({ingredients: ingredients, totalPrice: price})
   // }
 
-  componentWillMount(){
-
-  }
-  checkoutCancelledHandler = () =>{
-    this.props.history.goBack();
+ 
+  const checkoutCancelledHandler = () =>{
+    props.history.goBack();
   }
 
-  checkoutContinuedHandler = () =>{
-    this.props.history.replace('/checkout/contact-data');
+  const checkoutContinuedHandler = () =>{
+    props.history.replace('/checkout/contact-data');
   }
 
-  render(){
+
 
     //Checks to see if there are ingredients. If not, will redirect to home page. If so,
     //will load checkoutsummary component
     let summary =<Redirect to='/'/>
-    if (this.props.ings){
+    if (props.ings){
       //If purchased is complete, redirect. if not continue
-      const purchasedRedirect =this.props.purchased ? <Redirect to='/'/> : null
+      const purchasedRedirect =props.purchased ? <Redirect to='/'/> : null
       summary = (
         <div>
       {purchasedRedirect}
       <CheckoutSummary
-      ingredients={this.props.ings}
-      onCheckoutCancelled={this.checkoutCancelledHandler}
-      onCheckoutContinued={this.checkoutContinuedHandler}
+      ingredients={props.ings}
+      onCheckoutCancelled={checkoutCancelledHandler}
+      onCheckoutContinued={checkoutContinuedHandler}
       />
       
       <Route
-              path={this.props.match.path + '/contact-data'}
+              path={props.match.path + '/contact-data'}
               // component={ContactData}
               //manual render we can access send props so that it can be accessed
               //By passing (props) in params, we can then access history, location, and match in contact data
@@ -71,7 +69,7 @@ class Checkout extends Component{
       )
     }
     return summary;
-  }
+  
 
 }
 
@@ -87,4 +85,4 @@ const mapStateToProps= state =>{
 
 //No dispatch needed cause we are only routing here. 
 //Therefore no redux dispatching needed
-export default connect(mapStateToProps)(Checkout);
+export default connect(mapStateToProps)(checkout);
